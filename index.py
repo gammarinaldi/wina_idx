@@ -22,9 +22,9 @@ if __name__ == '__main__':
     try:
         print("Starting WINA...\n")
 
-        with open(f"{dir_path}\\WINAReport.csv", "r") as file:
+        with open(f"{dir_path}\\result.csv", "r") as file:
             csvreader = csv.reader(file)
-            if lib.is_empty_csv(f"{dir_path}\\WINAReport.csv") == False:
+            if lib.is_empty_csv(f"{dir_path}\\result.csv") == False:
                 next(csvreader, None)
 
                 for row in csvreader:
@@ -41,7 +41,7 @@ if __name__ == '__main__':
                     cut_loss = row[7]
                     
                     row = [emiten, signal_date, buy_price, take_profit, cut_loss] #the data
-                    with open(f"{dir_path}\\auto_order\\history.csv", 'a', newline='', encoding='utf-8') as file:
+                    with open(f"{dir_path}\\wina_idx\\history.csv", 'a', newline='', encoding='utf-8') as file:
                         writer = csv.writer(file) #this is the writer object
                         writer.writerow(row) #this is the data
                         file.close()
