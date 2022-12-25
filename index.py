@@ -1,59 +1,45 @@
 import csv
-import telegram
 import time
 import lib
-import os
-from dotenv import load_dotenv
 
 if __name__ == '__main__':
-    # Define telegram bot
-    tele_bot_token, tele_chat_ids, tele_log_id = lib.get_tele_data()
-    bot = telegram.Bot(token=tele_bot_token)
+    print("WINA IDX is starting...\n")
 
-    list_order = []
-
-    load_dotenv()
-    enable_signal = os.getenv('ENABLE_SIGNAL')
-    enable_buy = os.getenv('ENABLE_BUY')
-    enable_sell = os.getenv('ENABLE_SELL')
-    sell_delay = os.getenv('SELL_DELAY')
-    dir_path = os.getenv('DIR_PATH')
+    bot, tele_chat_ids, tele_log_id = lib.get_tele_bot()
+    enable_signal, enable_buy, enable_sell, sell_delay, dir_path = lib.get_env()
 
     try:
-        print("Starting WINA...\n")
+        result = lib.get_result()
+        if isinstance(result, str):
+            print(result)
+        else:
+            list_order = []
+            for row in result:
+                emiten = row[0]
+                signal_date = row[1]
+                buy_price = row[2]
+                take_profit = row[3]
+                cut_loss = row[4]
 
-        with open(f"{dir_path}\\result.csv", "r") as file:
-            csvreader = csv.reader(file)
-            if lib.is_empty_csv(f"{dir_path}\\result.csv") == False:
-                next(csvreader, None)
+                # Save signal history
+                with open(f"{dir_path}\\wina_idx\\history.csv", 'a', newline='', encoding='utf-8') as file:
+                    writer = csv.writer(file) #this is the writer object
+                    writer.writerow([emiten, signal_date, buy_price, take_profit, cut_loss]) #this is the data
+                    file.close()
 
-                for row in csvreader:
-                    emiten = row[0]
-                    if row[0].find(".JK") != -1:
-                        emiten = emiten.replace(".JK", "")
+                emiten = row[0]
+                signal_date = row[1]
+                buy_price = row[2]
+                take_profit = row[3]
+                cut_loss = row[4]
 
-                    signal_date = row[1].split(" ")[0]
-                    # close = row[2]
-                    # change = row[3]
-                    # trx = row[4]
-                    buy_price = row[5]
-                    take_profit = row[6]
-                    cut_loss = row[7]
-                    
-                    row = [emiten, signal_date, buy_price, take_profit, cut_loss] #the data
-                    with open(f"{dir_path}\\wina_idx\\history.csv", 'a', newline='', encoding='utf-8') as file:
-                        writer = csv.writer(file) #this is the writer object
-                        writer.writerow(row) #this is the data
-                        file.close()
+                # Send signal to telegram
+                if enable_signal == "1":
+                    msg = "💌 Rekomendasi WINA IDX \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
+                    lib.send_msg_v2(bot, tele_chat_ids, msg)
 
-                    msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
-
-                    # Send signal to telegram
-                    if enable_signal == "1":
-                        lib.send_msg_v2(bot, tele_chat_ids, msg)
-
-                    # Input order parameters for auto order
-                    list_order.append(lib.data_order(emiten, buy_price, take_profit, cut_loss))
+                # Input order parameters for auto order
+                list_order.append(lib.data_order(emiten, buy_price, take_profit, cut_loss))
 
                 # Perform auto order buy
                 if enable_buy == "1":
@@ -82,11 +68,6 @@ if __name__ == '__main__':
                     diff = t2 -t1
                     print("Processing auto-sell order takes: " + str(round(diff, 2)) + " secs.")
                     lib.send_log(bot, tele_log_id, lib.LOG)
-            else: 
-                msg = "No signal for today"
-                print(msg)
-                if enable_signal == "1": 
-                    lib.send_msg_v2(bot, tele_chat_ids, msg)
     except Exception as error:
         print(error)
         lib.error_log(bot, tele_log_id)

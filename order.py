@@ -1,6 +1,7 @@
 import requests
 import json
 import order_book
+import lib
 from math import floor
 from datetime import date, timedelta
 
@@ -67,14 +68,16 @@ def create_sell(access_token, emiten, value, lot, comparator):
         end = start + timedelta(days=30)
         start_date = start.strftime("%Y-%m-%d")
         end_date = end.strftime("%Y-%m-%d")
+        trigger_price = int(value)
+        order_price = int(value) - lib.tick(int(value))
         payload = json.dumps({
             "code": emiten,
             "side": "SELL",
             "criterion": "PRICE",
             "comparator": comparator,
-            "value": value,
-            "order_price": value,
-            "lot": lot,
+            "value": trigger_price,
+            "order_price": order_price,
+            "lot": int(lot),
             "start_date": start_date,
             "end_date": end_date,
             "expiry": "day"
