@@ -91,11 +91,11 @@ def do_login(user):
         msg = user["email"] + ": login OK"
         print(msg)
         LOG.append(msg)
-        return res.status_code, access_token
+        return res.status_code, data, access_token
     else:
         msg = user["email"] + ": login error: " + res.text
         LOG.append(msg)
-        return res.status_code, ""
+        return res.status_code, data, ""
 
 def do_logout(access_token, user):
     res = logout.call(access_token)
@@ -163,11 +163,9 @@ def get_portfolio(access_token, user):
 
 def buy(user, list_order):
     LOG.append("Order Buy Report:")
-    login_status, access_token = do_login(user)
+    login_status, data, access_token = do_login(user)
     if login_status == 200:
-        data = res.json()
         access_token = "jwt " + data["access_token"]
-
         msg = user["email"] + ": login OK"
         print(msg)
         LOG.append(msg)
@@ -196,7 +194,7 @@ def buy(user, list_order):
 
 def sell(user, list_order):
     LOG.append("Order Sell Report:")
-    login_status, access_token = do_login(user)
+    login_status, _, access_token = do_login(user)
     if login_status == 200:
         portfolio = get_portfolio(access_token, user)
         if isinstance(portfolio, list) and portfolio != []:
@@ -212,14 +210,18 @@ def sell(user, list_order):
                     lot = dicts[0]["lot"]
                     res = order.create_sell(access_token, emiten, tp, lot, "GTE")
                     if res.status_code == 200:
-                        print(user["email"] + ": set TP " + emiten + " OK")
+                        msg = user["email"] + ": set TP " + emiten + " sent"
+                        LOG.append(msg)
+                        print(msg)
                         print(res.json())
 
                         time.sleep(3)
 
                         res = order.create_sell(access_token, emiten, cl, lot, "LTE")
                         if res.status_code == 200:
-                            print(user["email"] + ": set CL " + emiten + " OK")
+                            msg = user["email"] + ": set CL " + emiten + " sent"
+                            LOG.append(msg)
+                            print(msg)
                             print(res.json())
                         else:
                             msg = user["email"] + ": set CL error: " + res.text
