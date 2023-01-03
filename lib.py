@@ -166,10 +166,6 @@ def buy(user, list_order):
     login_status, data, access_token = do_login(user)
     if login_status == 200:
         access_token = "jwt " + data["access_token"]
-        msg = user["email"] + ": login OK"
-        print(msg)
-        LOG.append(msg)
-
         # porto = portfolio.call(access_token)
         # data_porto = porto.json()
         # trading_limit = data_porto["result"]["trading_limit"]
