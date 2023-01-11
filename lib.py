@@ -108,9 +108,9 @@ def do_logout(access_token, user):
 
 def get_signal_history():
     dir_path = get_dir_path()
-    with open(f"{dir_path}\\history.csv", "r") as file:
+    with open(f"{dir_path}\\signal_history.csv", "r") as file:
         csvreader = csv.reader(file)
-        if is_empty_csv(f"{dir_path}\\history.csv") == False:
+        if is_empty_csv(f"{dir_path}\\signal_history.csv") == False:
             next(csvreader, None)
             list = []
             for row in csvreader:
@@ -132,17 +132,18 @@ def check_position(access_token, porto_dicts, user):
             if len(dicts) == 2:
                 print(emiten + ': Position ok')
             elif len(dicts) == 1:
-                for item in get_signal_history():
+                signal_history_dicts = [i for i in get_signal_history() if i[0] == emiten]
+                for item in signal_history_dicts[-1]:
                     h_emiten = item[0]
                     h_tp = item[3]
                     h_cl = item[4]
                     if h_emiten == emiten:
                         comparator = dicts[0]['comparator']
                         if comparator == 'LTE':
-                            print('Create auto sell for take profit')
+                            print('Re-create auto sell for take profit')
                             order.create_sell(access_token, emiten, h_tp, lot, "GTE")
                         else:
-                            print('Create auto sell for cut loss')
+                            print('Re-create auto sell for cut loss')
                             order.create_sell(access_token, emiten, h_cl, lot, "LTE")
             else:
                 print('Remove unused auto trade setup')

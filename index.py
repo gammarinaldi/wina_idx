@@ -22,7 +22,7 @@ if __name__ == '__main__':
                 cut_loss = row[4]
 
                 # Save signal history
-                with open(f"{dir_path}\\history.csv", 'a', newline='', encoding='utf-8') as file:
+                with open(f"{dir_path}\\signal_history.csv", 'a', newline='', encoding='utf-8') as file:
                     writer = csv.writer(file) #this is the writer object
                     writer.writerow([emiten, signal_date, buy_price, take_profit, cut_loss]) #this is the data
                     file.close()
