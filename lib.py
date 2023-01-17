@@ -1,8 +1,11 @@
+import brokers.ajaib.login
+import brokers.ajaib.logout
+import brokers.ajaib.order
+import brokers.ajaib.portfolio
+import brokers.ajaib.auto_trading_list
+import brokers.ajaib.delete_auto_trade
+
 import concurrent.futures
-import login
-import logout
-import order
-import portfolio
 import csv
 import telegram
 import logging
@@ -10,10 +13,11 @@ import traceback
 import os
 import time
 import users
-import auto_trading_list
-import delete_auto_trade
+
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
+
+load_dotenv()
 
 LOG = []
 
@@ -25,15 +29,12 @@ class data_order():
         self.cut_loss = cut_loss
 
 def get_env():
-    load_dotenv()
     return os.getenv('ENABLE_SIGNAL'), os.getenv('ENABLE_BUY'), os.getenv('ENABLE_SELL'), os.getenv('SELL_DELAY'), os.getenv('DIR_PATH') 
 
 def get_dir_path():
-    load_dotenv()
     return os.getenv('DIR_PATH')
 
 def get_tele_data():
-    load_dotenv()
     tele_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
     tele_chat_ids = [os.getenv('TELEGRAM_CHAT_ID_WINA'), os.getenv('TELEGRAM_CHAT_ID_SINYALA')]
     tele_log_id = os.getenv('TELEGRAM_LOGGER_ID')
@@ -55,9 +56,9 @@ def is_empty_csv(path):
 
 def get_result():
     dir_path = get_dir_path()
-    with open(f"{dir_path}\\result.csv", "r") as file:
+    with open(f"{dir_path}\\signals\\result.csv", "r") as file:
         csvreader = csv.reader(file)
-        if is_empty_csv(f"{dir_path}\\result.csv") == False:
+        if is_empty_csv(f"{dir_path}\\signals\\result.csv") == False:
             next(csvreader, None)
 
             list = []
@@ -78,13 +79,12 @@ def get_result():
         else:
             msg = "No signal for today"
             bot, tele_chat_ids, _ = get_tele_bot()
-            load_dotenv()
             if os.getenv('ENABLE_SIGNAL') == "1":
                 send_msg_v2(bot, tele_chat_ids, msg)
             return msg
 
 def do_login(user):
-    res = login.call(user)
+    res = brokers.ajaib.login.call(user)
     if res.status_code == 200:
         data = res.json()
         access_token = "jwt " + data["access_token"]
@@ -98,7 +98,7 @@ def do_login(user):
         return res.status_code, data, ""
 
 def do_logout(access_token, user):
-    res = logout.call(access_token)
+    res = brokers.ajaib.logout.call(access_token)
     if res.status_code == 200:
         msg = user["email"] + ": logout OK"
         LOG.append(msg)
@@ -108,9 +108,9 @@ def do_logout(access_token, user):
 
 def get_signal_history():
     dir_path = get_dir_path()
-    with open(f"{dir_path}\\signal_history.csv", "r") as file:
+    with open(f"{dir_path}\\signals\\history.csv", "r") as file:
         csvreader = csv.reader(file)
-        if is_empty_csv(f"{dir_path}\\signal_history.csv") == False:
+        if is_empty_csv(f"{dir_path}\\signals\\history.csv") == False:
             next(csvreader, None)
             list = []
             for row in csvreader:
@@ -120,7 +120,7 @@ def get_signal_history():
 
 def check_position(access_token, porto_dicts, user):
     print('Check position...')
-    res = auto_trading_list.call(access_token)
+    res = brokers.ajaib.auto_trading_list.call(access_token)
     if res.status_code == 200:
         data = res.json()
         at_list_dicts = data["results"]
@@ -141,20 +141,20 @@ def check_position(access_token, porto_dicts, user):
                         comparator = dicts[0]['comparator']
                         if comparator == 'LTE':
                             print('Re-create auto sell for take profit')
-                            order.create_sell(access_token, emiten, h_tp, lot, "GTE")
+                            brokers.ajaib.order.create_sell(access_token, emiten, h_tp, lot, "GTE")
                         else:
                             print('Re-create auto sell for cut loss')
-                            order.create_sell(access_token, emiten, h_cl, lot, "LTE")
+                            brokers.ajaib.order.create_sell(access_token, emiten, h_cl, lot, "LTE")
             else:
                 print('Remove unused auto trade setup')
                 for trade in at_list_dicts:
-                    delete_auto_trade.call(access_token, trade['id'])
+                    brokers.ajaib.delete_auto_trade.call(access_token, trade['id'])
     else:
         msg = user["email"] + ": check position error: " + res.text
         LOG.append(msg)
 
 def get_portfolio(access_token, user):
-    porto_res = portfolio.call(access_token)
+    porto_res = brokers.ajaib.portfolio.call(access_token)
     if porto_res.status_code == 200:
         porto_data = porto_res.json()
         return porto_data["result"]["portfolio"]
@@ -162,19 +162,22 @@ def get_portfolio(access_token, user):
         msg = user["email"] + ": get portfolio error: " + porto_res.text
         LOG.append(msg)
 
+def position_size(access_token):
+    # porto = portfolio.call(access_token)
+    # data_porto = porto.json()
+    # trading_limit = data_porto["result"]["trading_limit"]
+    trading_limit = 4_000_000
+    amount = trading_limit / 4
+    return amount
+
 def buy(user, list_order):
     LOG.append("Order Buy Report:")
     login_status, data, access_token = do_login(user)
     if login_status == 200:
         access_token = "jwt " + data["access_token"]
-        # porto = portfolio.call(access_token)
-        # data_porto = porto.json()
-        # trading_limit = data_porto["result"]["trading_limit"]
-        trading_limit = 4_000_000
-        amount = trading_limit / 4
-
+        amount = position_size(access_token)
         for obj in list_order:
-            res = order.create_buy(access_token, obj.emiten, amount)
+            res = brokers.ajaib.order.create_buy(access_token, obj.emiten, obj.buy_price, amount)
             if res.status_code == 200:
                 msg = user["email"] + ": order buy " + obj.emiten + " sent"
                 print(msg)
@@ -205,7 +208,7 @@ def sell(user, list_order):
                 
                 if dicts != []:
                     lot = dicts[0]["lot"]
-                    res = order.create_sell(access_token, emiten, tp, lot, "GTE")
+                    res = brokers.ajaib.order.create_sell(access_token, emiten, tp, lot, "GTE")
                     if res.status_code == 200:
                         msg = user["email"] + ": set TP " + emiten + " sent"
                         LOG.append(msg)
@@ -214,7 +217,7 @@ def sell(user, list_order):
 
                         time.sleep(3)
 
-                        res = order.create_sell(access_token, emiten, cl, lot, "LTE")
+                        res = brokers.ajaib.order.create_sell(access_token, emiten, cl, lot, "LTE")
                         if res.status_code == 200:
                             msg = user["email"] + ": set CL " + emiten + " sent"
                             LOG.append(msg)

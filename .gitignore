@@ -1,4 +1,4 @@
-.env
-users.py
+*.env
+*.bat
 amibroker
-.bat
+__pycache__

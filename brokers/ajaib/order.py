@@ -1,17 +1,21 @@
 import requests
 import json
-import order_book
+import brokers.ajaib.order_book
 import lib
 from math import floor
 from datetime import date, timedelta
 
 today = date.today()
 
-def create_buy(access_token, emiten, amount):
-    res = order_book.call(access_token, emiten)
+def create_buy(access_token, emiten, buy_price, amount):
+    res = brokers.ajaib.order_book.call(access_token, emiten)
     if res.status_code == 200:
-        data = res.json()
-        order_price = data["sell_side"]["items"][0]["price"]
+        # Buy price by HAKA
+        # data = res.json()
+        # order_price = data["sell_side"]["items"][0]["price"]
+
+        # Buy price by Close Price
+        order_price = buy_price
 
         lot = floor(( amount / float(order_price)) / 100)
 
