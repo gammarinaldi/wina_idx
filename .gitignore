@@ -2,4 +2,4 @@
 *.bat
 amibroker
 __pycache__
-gsheet/credentials.json
+gsheet
