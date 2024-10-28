@@ -4,7 +4,7 @@ import lib
 import gsheet.process
 
 if __name__ == '__main__':
-    print("WINA IDX is starting...")
+    print("Algotrader is starting...")
 
     bot, tele_chat_ids, tele_log_id = lib.get_tele_bot()
     enable_signal, enable_buy, enable_sell, sell_delay, dir_path = lib.get_env()
@@ -32,7 +32,7 @@ if __name__ == '__main__':
                     writer.writerow([emiten, signal_date, buy_price, take_profit, cut_loss]) #this is the data
                     file.close()                
 
-                msg = "💌 Rekomendasi WINA IDX \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
+                msg = "💌 Rekomendasi Algo Trader \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
                 print(msg)
 
                 # Send signal to telegram
