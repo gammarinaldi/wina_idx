@@ -4,7 +4,7 @@ Algotrader is an algorithmic trading applied for Indonesia stock exchange,
 with purpose to assist investor and trader with backtested strategy, 
 so they can execute trades with consistent profit and measureable risk.
 
-# Disclaimer
+# Heads Up!
 This platform depends on Amibroker for trading strategy setup, backtesting, and trading signal generation that used to execute a trade.
 
 ## Backtesting
