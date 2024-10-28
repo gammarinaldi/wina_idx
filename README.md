@@ -16,27 +16,20 @@ Simulations are based on past performance and do not guarantee future performanc
 (https://quantsavvy.com/quant-trading-results/)
 *Risk-reward ratio: Measures the potential profit an investment can produce for every dollar of losses the trade poses for an investor
 
-## Proof of Trades
-https://docs.google.com/spreadsheets/d/1zgLSYz8JoXUSdWg4ARw2kXlURVqWZi0KJl2fWB_BJXE/edit#gid=422502763
-
 ## Features
 
 - Market quotes updater
-- Backtested strategy
 - Auto order execution
 - Auto money management
 - Auto take profit
 - Auto stop loss
-- Multi accounts
-
 
 ## Roadmap
 - Strategy research ✓
 - Strategy validation ✓
 - Signal generation ✓
 - Fully automated trading ✓
-- Quantitative trading
-- Adaptive trading (machine learning)
+- Integration with LLM to add sentiment analysis based on news and financial statement 
 
 
 ## Authors
