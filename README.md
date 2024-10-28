@@ -1,17 +1,12 @@
 ﻿
-# WINA IDX
+# Algo Trader
 
-WINA stands for Winning AI, an algorithmic trading applied for Indonesia stock exchange, 
+Algotrader is an algorithmic trading applied for Indonesia stock exchange, 
 with purpose to assist investor and trader with backtested strategy, 
 so they can execute trades with consistent profit and measureable risk.
 
-## High-level Diagram
-![High-level Diagram](https://i.ibb.co/R0HfZDZ/wina-diagram.png)
-
-## Backtest Result
+## Backtesting
 Simulations are based on past performance and do not guarantee future performance.
-
-![Simulation](https://i.ibb.co/LzCjzqt/Screenshot-2022-12-28-at-12-29-48.png)
 
 *Max. % drawdown: Maximum portfolio loss percentage
 
