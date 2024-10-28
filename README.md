@@ -19,7 +19,7 @@ Simulations are based on past performance and do not guarantee future performanc
 ## Features
 
 - Market quotes updater
-- Auto order execution
+- Auto order execution (Ajaib/Stockbit)
 - Auto money management
 - Auto take profit
 - Auto stop loss
