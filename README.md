@@ -23,6 +23,7 @@ Simulations are based on past performance and do not guarantee future performanc
 - Auto money management
 - Auto take profit
 - Auto stop loss
+- Send signal to telegram
 
 ## Roadmap
 - Strategy research ✓
